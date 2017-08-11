@@ -20,7 +20,7 @@ fn main() {
 #[derive(Debug)]
 struct Tix {
     filename: PathBuf,
-    tix:      Vec<String>, // TODO: ints
+    tix: Vec<u32>,
 }
 
 fn read_tix(path: &Path) -> Vec<Tix> {
@@ -32,7 +32,7 @@ fn read_tix(path: &Path) -> Vec<Tix> {
 
     let modules = data.split("TixModule ").skip(1);
     for module in modules {
-        println!("{}", module);
+        // println!("{}", module);
         let parts: Vec<&str> = module.splitn(4, ' ').collect();
 
         let f = parts[0].trim_matches('"');
@@ -40,12 +40,11 @@ fn read_tix(path: &Path) -> Vec<Tix> {
 
         let ticks = parts[3].trim_right_matches(',')
                             .trim_matches(|c| c == '[' || c == ']');
-        let ticks: Vec<String> = ticks.split(',')
-                                      .map(|s| s.to_string())
-                                      .collect();
+        let ticks = ticks.split(',')
+                         .map(|s| s.parse().unwrap());
         let tx = Tix{
             filename: f,
-            tix: ticks,
+            tix: ticks.collect(),
         };
         println!("{:?}", tx);
         txs.push(tx);
@@ -55,10 +54,19 @@ fn read_tix(path: &Path) -> Vec<Tix> {
 
 #[derive(Debug)]
 struct Pos {
-    // line: u32, // TODO: ints
-    // col:  u32,
-    line: String,
-    col:  String,
+    line: u32,
+    col: u32,
+}
+
+impl Pos {
+    // TODO: return Result
+    fn from(s: &str) -> Pos {
+        let parts: Vec<&str> = s.split(':').collect();
+        Pos {
+            line: parts[0].parse().unwrap(),
+            col: parts[1].parse().unwrap(),
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -73,18 +81,11 @@ fn read_mix(path: &Path) {
     let boxes = parts[7].trim_matches(|c| "[()]".contains(c));
     let boxes = boxes.split("),(");
     for b in boxes {
-        let location = b.split(',').nth(0).expect("no position");
-        let location: Vec<String> = location.split(|c| c == '-' || c == ':')
-                               .map(|s| s.to_string())
-                                   .collect();
-        let start = Pos{
-            line: location[0].clone(), // TODO: Is clone the only way?
-            col: location[1].clone(),
-        };
-        let end = Pos{
-            line: location[2].clone(),
-            col: location[3].clone(),
-        };
+        let location = b.split(',').nth(0).unwrap();
+        let location: Vec<&str> = location.split('-').collect();
+
+        let start = Pos::from(location[0]);
+        let end = Pos::from(location[1]);
         println!("{:?} - {:?}", start, end);
     }
 }
