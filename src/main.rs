@@ -35,8 +35,8 @@ fn read_tix(path: &Path) -> Vec<Tix> {
         println!("{}", module);
         let parts: Vec<&str> = module.splitn(4, ' ').collect();
 
-        let f = parts[0].trim_matches('"');  // FIXME: something funky with duplicating paths
-        let f = PathBuf::from(f).with_extension("mix");
+        let f = parts[0].trim_matches('"');
+        let f = PathBuf::from(f.to_owned() + ".mix");
 
         let ticks = parts[3].trim_right_matches(',')
                             .trim_matches(|c| c == '[' || c == ']');
