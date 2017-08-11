@@ -1,0 +1,6 @@
+[package]
+name = "hpc-convert"
+version = "0.1.0"
+authors = ["Sergey Parshukov <codedby@bugman.me>"]
+
+[dependencies]
