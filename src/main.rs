@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -31,23 +30,14 @@ fn read_mix(path: &str) {
     let boxes = parts[7].trim_left_matches("[(").trim_right_matches("])");
     let boxes = boxes.split("),(");
     for b in boxes {
-        let pos = b.split(',').nth(0).expect("position");
+        let pos = b.split(',').nth(0).expect("no position");
         println!("{}", pos);
     }
 }
 
 fn read_file(path: &str) -> String {
-    // TODO: expect
-    let mut file = match File::open(path) {
-        Err(why) => panic!("couldn't open {}: {}", path,
-                                                   why.description()),
-        Ok(file) => file
-    };
+    let mut file = File::open(path).expect("file not found");
     let mut contents = String::new();
-    match file.read_to_string(&mut contents) {
-        Err(why) => panic!("couldn't read {}: {}", path,
-                                                   why.description()),
-        Ok(_) => (),
-    }
+    file.read_to_string(&mut contents).expect("error reading the file");
     return contents;
 }
