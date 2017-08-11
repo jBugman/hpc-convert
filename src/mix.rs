@@ -1,6 +1,6 @@
+extern crate file;
+
 use std::fmt;
-use std::fs::File;
-use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -14,7 +14,7 @@ pub struct Mix {
 }
 
 pub fn read_mix(path: &Path) -> Mix {
-    let data = read_file(path);
+    let data = file::get_text(path).unwrap();
     let parts: Vec<&str> = data.splitn(8, ' ').collect();
 
     let filename = parts[1].trim_matches('"');
@@ -74,13 +74,4 @@ impl fmt::Display for Pos {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.{}", self.line, self.col)
     }
-}
-
-
-// TODO: copypasted for now
-fn read_file(path: &Path) -> String {
-    let mut file = File::open(path).expect("file not found");
-    let mut contents = String::new();
-    file.read_to_string(&mut contents).expect("error reading the file");
-    return contents;
 }

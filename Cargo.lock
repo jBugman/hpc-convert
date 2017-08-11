@@ -1,4 +1,14 @@
 [root]
 name = "hpc-convert"
 version = "0.1.0"
+dependencies = [
+ "file 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "file"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum file 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "22ee694e3d88d6b103e0ad75a11abcf013c65e6a836be83598be9087b08fd88b"

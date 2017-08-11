@@ -4,3 +4,4 @@ version = "0.1.0"
 authors = ["Sergey Parshukov <codedby@bugman.me>"]
 
 [dependencies]
+file = "1.1.1"
