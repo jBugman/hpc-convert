@@ -1,21 +1,14 @@
+use std::fmt;
 use std::fs::File;
+use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
-use std::io::prelude::*;
 
 fn main() {
     let path = Path::new("test_data/fun-lang-test.tix");
     let tix = read_tix(path);
     // println!("{:?}", tix);
 
-    // println!("\n");
-
-    // let path = &tix.last().expect("last tix").filename;
-    // let path = &tix[1].filename;
-    // let path = Path::new("test_data/hpc").join(path.as_path());
-    // println!("{:?}", path);
-    // let mix = read_mix(&path);
-    // println!("{:?}", mix);
     combine(&tix.last().unwrap());
 }
 
@@ -68,10 +61,22 @@ impl Pos {
     }
 }
 
+impl fmt::Display for Pos {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.line, self.col)
+    }
+}
+
 #[derive(Debug)]
 struct Tick {
     start: Pos,
     end: Pos,
+}
+
+impl fmt::Display for Tick {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{},{}", self.start, self.end)
+    }
 }
 
 #[derive(Debug)]
@@ -111,15 +116,16 @@ fn read_mix(path: &Path) -> Mix {
 
 fn combine(t: &Tix) {
     let path = Path::new("test_data/hpc").join(t.filename.as_path());
-    println!("filepath: {:?}", path);
-    println!("tix: {:?}", t.tix);
+    // println!("filepath: {:?}", path);
+    // println!("tix: {:?}", t.tix);
     let mix = read_mix(&path);
-    println!("mix: {:?}", mix);
+    // println!("mix: {:?}", mix);
     assert!(t.tix.len() == mix.tix.len());
 
+    println!("mode: atomic");
     for it in t.tix.iter().zip(mix.tix.iter()) {
         let (t, m) = it;
-        println!("{}:{:?} {}", mix.filename.to_str().unwrap(), m, t);
+        println!("{}:{} 1 {}", mix.filename.to_str().unwrap(), m, t);
     }
 }
 
