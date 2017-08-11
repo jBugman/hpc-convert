@@ -9,7 +9,9 @@ fn main() {
     let tix = read_tix(path);
     // println!("{:?}", tix);
 
-    combine(&tix.last().unwrap());
+    let base_dir = Path::new("test_data/hpc");
+    let t = tix.last().unwrap();
+    combine(&t, base_dir);
 }
 
 #[derive(Debug)]
@@ -20,8 +22,7 @@ struct Tix {
 
 fn read_tix(path: &Path) -> Vec<Tix> {
     let data = read_file(path);
-    let data = data.trim_left_matches("Tix ")
-                   .trim_matches(|c| c == '[' || c == ']'); // TODO: Refactor out
+    let data = data.trim_left_matches("Tix ").trim_brackets();
 
     let mut txs: Vec<Tix> = Vec::new();
 
@@ -32,9 +33,9 @@ fn read_tix(path: &Path) -> Vec<Tix> {
         let name = parts[0].trim_matches('"');
 
         let ticks = parts[3].trim_right_matches(',')
-                            .trim_matches(|c| c == '[' || c == ']');
-        let ticks = ticks.split(',')
-                         .map(|s| s.parse().unwrap());
+                            .trim_brackets()
+                            .split(',')
+                            .map(|s| s.parse().unwrap());
         let tx = Tix{
             filename: PathBuf::from(name.to_owned() + ".mix"),
             tix: ticks.collect(),
@@ -42,6 +43,22 @@ fn read_tix(path: &Path) -> Vec<Tix> {
         txs.push(tx);
     }
     return txs;
+}
+
+trait TrimExt {
+    fn trim_brackets(&self) -> &str;
+
+    fn trim_parens(&self) -> &str;
+}
+
+impl TrimExt for str {
+    fn trim_brackets(&self) -> &str {
+        self.trim_matches(|c| c == '[' || c == ']')
+    }
+
+    fn trim_parens(&self) -> &str {
+        self.trim_matches(|c| c == '(' || c == ')')
+    }
 }
 
 #[derive(Debug)]
@@ -97,7 +114,7 @@ fn read_mix(path: &Path) -> Mix {
         tix: Vec::new(),
     };
 
-    let boxes = parts[7].trim_matches(|c| "[()]".contains(c));
+    let boxes = parts[7].trim_brackets().trim_parens();
     let boxes = boxes.split("),(");
 
     for b in boxes {
@@ -108,18 +125,14 @@ fn read_mix(path: &Path) -> Mix {
             start: Pos::from(location[0]),
             end: Pos::from(location[1]),
         };
-        // println!("{:?}", tick);
         mix.tix.push(tick);
     }
     return mix;
 }
 
-fn combine(t: &Tix) {
-    let path = Path::new("test_data/hpc").join(t.filename.as_path());
-    // println!("filepath: {:?}", path);
-    // println!("tix: {:?}", t.tix);
+fn combine(t: &Tix, base_dir: &Path) {
+    let path = base_dir.join(t.filename.as_path());
     let mix = read_mix(&path);
-    // println!("mix: {:?}", mix);
     assert!(t.tix.len() == mix.tix.len());
 
     println!("mode: atomic");
