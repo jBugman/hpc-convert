@@ -6,16 +6,17 @@ use std::io::prelude::*;
 fn main() {
     let path = Path::new("test_data/fun-lang-test.tix");
     let tix = read_tix(path);
-    println!("{:?}", tix);
+    // println!("{:?}", tix);
 
-    println!("\n");
+    // println!("\n");
 
-    let path = &tix.last().expect("last tix").filename;
+    // let path = &tix.last().expect("last tix").filename;
     // let path = &tix[1].filename;
-    let path = Path::new("test_data/hpc").join(path.as_path());
-    println!("{:?}", path);
-    let mix = read_mix(&path);
-    println!("{:?}", mix);
+    // let path = Path::new("test_data/hpc").join(path.as_path());
+    // println!("{:?}", path);
+    // let mix = read_mix(&path);
+    // println!("{:?}", mix);
+    combine(&tix.last().unwrap());
 }
 
 #[derive(Debug)]
@@ -33,7 +34,6 @@ fn read_tix(path: &Path) -> Vec<Tix> {
 
     let modules = data.split("TixModule ").skip(1);
     for module in modules {
-        // println!("{}", module);
         let parts: Vec<&str> = module.splitn(4, ' ').collect();
 
         let name = parts[0].trim_matches('"');
@@ -46,7 +46,6 @@ fn read_tix(path: &Path) -> Vec<Tix> {
             filename: PathBuf::from(name.to_owned() + ".mix"),
             tix: ticks.collect(),
         };
-        println!("{:?}", tx);
         txs.push(tx);
     }
     return txs;
@@ -110,6 +109,19 @@ fn read_mix(path: &Path) -> Mix {
     return mix;
 }
 
+fn combine(t: &Tix) {
+    let path = Path::new("test_data/hpc").join(t.filename.as_path());
+    println!("filepath: {:?}", path);
+    println!("tix: {:?}", t.tix);
+    let mix = read_mix(&path);
+    println!("mix: {:?}", mix);
+    assert!(t.tix.len() == mix.tix.len());
+
+    for it in t.tix.iter().zip(mix.tix.iter()) {
+        let (t, m) = it;
+        println!("{}:{:?} {}", mix.filename.to_str().unwrap(), m, t);
+    }
+}
 
 // TODO: how (should I?) to return &str?
 fn read_file(path: &Path) -> String {

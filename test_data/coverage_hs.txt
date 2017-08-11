@@ -1,0 +1,17 @@
+mode: atomic
+src/Fun.hs:16.26,16.28 1 15
+src/Fun.hs:16.20,16.28 1 15
+src/Fun.hs:16.34,16.40 1 1
+src/Fun.hs:16.44,16.50 1 1
+src/Fun.hs:16.34,16.50 1 15
+src/Fun.hs:16.20,16.50 1 15
+src/Fun.hs:16.56,16.60 1 15
+src/Fun.hs:16.20,16.60 1 15
+src/Fun.hs:16.1,16.60 1 15
+src/Fun.hs:13.23,13.25 1 1
+src/Fun.hs:13.17,13.25 1 1
+src/Fun.hs:13.31,13.37 1 1
+src/Fun.hs:13.41,13.47 1 1
+src/Fun.hs:13.31,13.47 1 1
+src/Fun.hs:13.17,13.47 1 1
+src/Fun.hs:13.1,13.47 1 1
