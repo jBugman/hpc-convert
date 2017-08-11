@@ -14,7 +14,8 @@ fn main() {
     // let path = &tix[1].filename;
     let path = Path::new("test_data/hpc").join(path.as_path());
     println!("{:?}", path);
-    read_mix(&path);
+    let mix = read_mix(&path);
+    println!("{:?}", mix);
 }
 
 #[derive(Debug)]
@@ -35,15 +36,14 @@ fn read_tix(path: &Path) -> Vec<Tix> {
         // println!("{}", module);
         let parts: Vec<&str> = module.splitn(4, ' ').collect();
 
-        let f = parts[0].trim_matches('"');
-        let f = PathBuf::from(f.to_owned() + ".mix");
+        let name = parts[0].trim_matches('"');
 
         let ticks = parts[3].trim_right_matches(',')
                             .trim_matches(|c| c == '[' || c == ']');
         let ticks = ticks.split(',')
                          .map(|s| s.parse().unwrap());
         let tx = Tix{
-            filename: f,
+            filename: PathBuf::from(name.to_owned() + ".mix"),
             tix: ticks.collect(),
         };
         println!("{:?}", tx);
@@ -69,25 +69,45 @@ impl Pos {
     }
 }
 
+#[derive(Debug)]
+struct Tick {
+    start: Pos,
+    end: Pos,
+}
+
+#[derive(Debug)]
+struct Mix {
+    filename: PathBuf,
+    tix: Vec<Tick>,
+}
+
 #[allow(dead_code)]
-fn read_mix(path: &Path) {
+fn read_mix(path: &Path) -> Mix {
     let data = read_file(path);
     let parts: Vec<&str> = data.splitn(8, ' ').collect();
 
     let filename = parts[1].trim_matches('"');
-    let filename = Path::new(filename);
-    println!("filename: {:?}", filename);
+
+    let mut mix = Mix {
+        filename: PathBuf::from(filename),
+        tix: Vec::new(),
+    };
 
     let boxes = parts[7].trim_matches(|c| "[()]".contains(c));
     let boxes = boxes.split("),(");
+
     for b in boxes {
         let location = b.split(',').nth(0).unwrap();
         let location: Vec<&str> = location.split('-').collect();
 
-        let start = Pos::from(location[0]);
-        let end = Pos::from(location[1]);
-        println!("{:?} - {:?}", start, end);
+        let tick = Tick {
+            start: Pos::from(location[0]),
+            end: Pos::from(location[1]),
+        };
+        // println!("{:?}", tick);
+        mix.tix.push(tick);
     }
+    return mix;
 }
 
 
