@@ -24,11 +24,12 @@ pub fn read_tix(path: &Path) -> Vec<Tix> {
 
         let name = parts[0].trim_matches('"');
 
-        let ticks = parts[3].trim_right_matches(',')
-                            .trim_brackets()
-                            .split(',')
-                            .map(|s| s.parse().unwrap());
-        let tx = Tix{
+        let ticks = parts[3]
+            .trim_right_matches(',')
+            .trim_brackets()
+            .split(',')
+            .map(|s| s.parse().unwrap());
+        let tx = Tix {
             filename: PathBuf::from(name.to_owned() + ".mix"),
             tix: ticks.collect(),
         };
