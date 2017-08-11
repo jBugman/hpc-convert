@@ -1,42 +1,55 @@
 use std::fs::File;
 use std::path::Path;
+use std::path::PathBuf;
 use std::io::prelude::*;
 
 fn main() {
     let path = Path::new("test_data/fun-lang-test.tix");
-    read_tix(path);
+    let tix = read_tix(path);
+    println!("{:?}", tix);
 
     println!("\n");
 
     // spellchecker: disable
+    let path = tix.last().expect("last tix").filename.as_path();
+    let path = Path::new("test_data/hpc").join(path);
+    println!("{:?}", path)
     // let path = Path::new("test_data/hpc/language-fun-0.29.1.0-Hg9DdLrIfsTzgrAVPGCMV/Fun.mix");
     // spellchecker: enable
     // read_mix(path);
 }
 
-// TODO: return types
-fn read_tix(path: &Path) {
+#[derive(Debug)]
+struct Tix {
+    filename: PathBuf,
+    tix: Vec<String>, // TODO: ints
+}
+
+fn read_tix(path: &Path) -> Vec<Tix> {
     let data = read_file(path);
     let data = data.trim_left_matches("Tix ")
                    .trim_matches(|c| c == '[' || c == ']'); // TODO: refactor out
-    // println!("{}", data);
+
+    let mut txs: Vec<Tix> = Vec::new();
 
     let modules = data.split("TixModule ").skip(1);
     for module in modules {
-        println!("");
-        // println!("TixModule\nsrc: {}", module);
-
         let parts: Vec<&str> = module.splitn(4, ' ').collect();
 
-        let filename = parts[0].trim_matches('"');
-        let filename = Path::new(filename).with_extension("mix");
-        println!("filename: {:?}", filename);
+        let f = parts[0].trim_matches('"');
+        let f = Path::new(f).with_extension("mix");
 
-        let tix = parts[3].trim_right_matches(',')
-                          .trim_matches(|c| c == '[' || c == ']');
-        let tix: Vec<&str> = tix.split(',').collect(); // TODO: ints?
-        println!("tix: {:?}", tix);
+        let ticks = parts[3].trim_right_matches(',')
+                            .trim_matches(|c| c == '[' || c == ']');
+        let ticks: Vec<String> = ticks.split(',')
+                                      .map(|s| s.to_string())
+                                      .collect();
+        txs.push(Tix{
+            filename: f,
+            tix: ticks,
+        });
     }
+    return txs;
 }
 
 #[allow(dead_code)]
