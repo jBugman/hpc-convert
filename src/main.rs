@@ -14,13 +14,13 @@ fn main() {
 
     let base_dir = Path::new("test_data/hpc");
     let t = tix.last().unwrap();
-    combine(&t, base_dir);
+    combine(t, base_dir);
 }
 
 fn combine(t: &Tix, base_dir: &Path) {
     let path = base_dir.join(t.filename.as_path());
     let mix = mix::read_mix(&path);
-    assert!(t.tix.len() == mix.tix.len());
+    assert_eq!(t.tix.len(), mix.tix.len());
 
     println!("mode: atomic");
     for it in t.tix.iter().zip(mix.tix.iter()) {

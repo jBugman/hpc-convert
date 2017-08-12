@@ -37,7 +37,7 @@ pub fn read_mix(path: &Path) -> Mix {
         };
         mix.tix.push(tick);
     }
-    return mix;
+    mix
 }
 
 #[derive(Debug)]

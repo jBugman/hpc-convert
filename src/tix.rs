@@ -35,5 +35,5 @@ pub fn read_tix(path: &Path) -> Vec<Tix> {
         };
         txs.push(tx);
     }
-    return txs;
+    txs
 }
