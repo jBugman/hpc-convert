@@ -12,7 +12,7 @@ pub struct Tix {
     pub tix: Vec<u32>,
 }
 
-pub fn read_tix(path: &Path) -> Vec<Tix> {
+pub fn from_file(path: &Path) -> Vec<Tix> {
     let data = file::get_text(path).unwrap();
     let data = data.trim_left_matches("Tix ").trim_brackets();
 

@@ -3,8 +3,10 @@ extern crate file;
 use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
+use std::str::FromStr;
 
 use trim::TrimExt;
+use errors::Error;
 
 
 #[derive(Debug)]
@@ -13,31 +15,31 @@ pub struct Mix {
     pub tix: Vec<Tick>,
 }
 
-pub fn read_mix(path: &Path) -> Mix {
-    let data = file::get_text(path).unwrap();
-    let parts: Vec<&str> = data.splitn(8, ' ').collect();
+pub fn from_file(path: &Path) -> Result<Mix, Error> {
+    let data = file::get_text(path)?;
+    data.parse()
+}
 
-    let filename = parts[1].trim_matches('"');
+impl FromStr for Mix {
+    type Err = Error;
 
-    let mut mix = Mix {
-        filename: PathBuf::from(filename),
-        tix: Vec::new(),
-    };
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts = s.splitn(8, ' ');
 
-    let boxes = parts[7].trim_brackets().trim_parens();
-    let boxes = boxes.split("),(");
+        let filename = parts.nth(1).ok_or(Error::FormatError)?.trim_matches('"');
+        let filename = PathBuf::from(filename);
 
-    for b in boxes {
-        let location = b.split(',').nth(0).unwrap();
-        let location: Vec<&str> = location.split('-').collect();
+        let tix = parts
+            .nth(5)
+            .ok_or(Error::FormatError)?
+            .trim_brackets()
+            .trim_parens()
+            .split("),(")
+            .flat_map(str::parse)
+            .collect();
 
-        let tick = Tick {
-            start: Pos::from(location[0]),
-            end: Pos::from(location[1]),
-        };
-        mix.tix.push(tick);
+        Ok(Mix { filename, tix })
     }
-    mix
 }
 
 #[derive(Debug)]
@@ -52,6 +54,17 @@ impl fmt::Display for Tick {
     }
 }
 
+impl FromStr for Tick {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let loc = s.split(',').next().ok_or(Error::FormatError)?;
+        let mut parts = loc.split('-');
+        let start = parts.next().ok_or(Error::FormatError)?.parse()?;
+        let end = parts.next().ok_or(Error::FormatError)?.parse()?;
+        Ok(Tick { start, end })
+    }
+}
 
 #[derive(Debug)]
 struct Pos {
@@ -59,14 +72,14 @@ struct Pos {
     col: u32,
 }
 
-impl Pos {
-    // TODO: return Result
-    fn from(s: &str) -> Pos {
-        let parts: Vec<&str> = s.split(':').collect();
-        Pos {
-            line: parts[0].parse().unwrap(),
-            col: parts[1].parse().unwrap(),
-        }
+impl FromStr for Pos {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut parts = s.split(':');
+        let line = parts.next().ok_or(Error::FormatError)?.parse()?;
+        let col = parts.next().ok_or(Error::FormatError)?.parse()?;
+        Ok(Pos { line, col })
     }
 }
 
