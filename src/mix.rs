@@ -5,7 +5,8 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::str::FromStr;
 
-use trim::TrimExt;
+use util::TrimExt;
+use util::NthOk;
 use errors::Error;
 
 
@@ -25,19 +26,14 @@ impl FromStr for Mix {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.splitn(8, ' ');
-
-        let filename = parts.nth(1).ok_or(Error::FormatError)?.trim_matches('"');
-        let filename = PathBuf::from(filename);
-
+        let filename = PathBuf::from(parts.nth_ok(1)?.trim_matches('"'));
         let tix = parts
-            .nth(5)
-            .ok_or(Error::FormatError)?
+            .nth_ok(5)?
             .trim_brackets()
             .trim_parens()
             .split("),(")
             .flat_map(str::parse)
             .collect();
-
         Ok(Mix { filename, tix })
     }
 }
@@ -60,8 +56,8 @@ impl FromStr for Tick {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let loc = s.split(',').next().ok_or(Error::FormatError)?;
         let mut parts = loc.split('-');
-        let start = parts.next().ok_or(Error::FormatError)?.parse()?;
-        let end = parts.next().ok_or(Error::FormatError)?.parse()?;
+        let start = parts.nth_ok(0)?.parse()?;
+        let end = parts.nth_ok(0)?.parse()?;
         Ok(Tick { start, end })
     }
 }
@@ -77,8 +73,8 @@ impl FromStr for Pos {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split(':');
-        let line = parts.next().ok_or(Error::FormatError)?.parse()?;
-        let col = parts.next().ok_or(Error::FormatError)?.parse()?;
+        let line = parts.nth_ok(0)?.parse()?;
+        let col = parts.nth_ok(0)?.parse()?;
         Ok(Pos { line, col })
     }
 }

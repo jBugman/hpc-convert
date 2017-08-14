@@ -3,7 +3,7 @@ extern crate file;
 use std::path::Path;
 use std::path::PathBuf;
 
-use trim::TrimExt;
+use util::TrimExt;
 
 
 #[derive(Debug)]

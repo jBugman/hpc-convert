@@ -1,4 +1,6 @@
-mod trim;
+#![feature(pattern)]
+
+mod util;
 mod mix;
 mod tix;
 mod errors;
