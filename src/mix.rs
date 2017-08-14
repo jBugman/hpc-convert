@@ -32,7 +32,7 @@ impl FromStr for Mix {
             .trim_brackets()
             .trim_parens()
             .split("),(")
-            .flat_map(str::parse)
+            .flat_map(str::parse) // FIXME: lost errors
             .collect();
         Ok(Mix { filename, tix })
     }

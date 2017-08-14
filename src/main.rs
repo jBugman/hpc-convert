@@ -6,20 +6,29 @@ mod tix;
 mod errors;
 
 use std::path::Path;
+use std::fmt::Write;
 
 use tix::Tix;
 use errors::Error;
 
 fn main() {
-    let path = Path::new("test_data/fun-lang-test.tix");
-    let tix = tix::from_file(path);
-
     let base_dir = Path::new("test_data/hpc");
-    let t = tix.unwrap();
-    let t = t.last().unwrap();
-    let result = combine_tix(t, base_dir).unwrap();
-    // println!("mode: atomic");
-    println!("{}", result);
+    let tix_path = Path::new("test_data/fun-lang-test.tix");
+
+    match convert_to_codecov(&tix_path, &base_dir) {
+        Ok(result) => print!("{}", result),
+        Err(err) => eprintln!("{:?}", err),
+    }
+}
+
+fn convert_to_codecov(tix_path: &Path, base_dir: &Path) -> Result<String, Error> {
+    let tixes = tix::from_file(tix_path)?;
+    let mut res = String::new();
+    writeln!(&mut res, "{}", "mode: atomic")?;
+    for tix in tixes.iter() {
+        write!(&mut res, "{}", combine_tix(tix, base_dir)?)?;
+    }
+    Ok(res)
 }
 
 fn combine_tix(t: &Tix, base_dir: &Path) -> Result<String, Error> {

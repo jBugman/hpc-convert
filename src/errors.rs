@@ -28,4 +28,3 @@ impl From<fmt::Error> for Error {
         Error::FormatterError(err)
     }
 }
-
