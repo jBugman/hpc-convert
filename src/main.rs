@@ -12,14 +12,14 @@ use tix::Tix;
 fn main() {
     let path = Path::new("test_data/fun-lang-test.tix");
     let tix = tix::from_file(path);
-    // println!("{:?}", tix);
 
     let base_dir = Path::new("test_data/hpc");
-    let t = tix.last().unwrap();
-    combine(t, base_dir);
+    let t = tix.unwrap();
+    let t = t.last().unwrap();
+    combine_tix(t, base_dir);
 }
 
-fn combine(t: &Tix, base_dir: &Path) {
+fn combine_tix(t: &Tix, base_dir: &Path) {
     let path = base_dir.join(t.filename.as_path());
     let mix = mix::from_file(&path).unwrap();
     assert_eq!(t.tix.len(), mix.tix.len());
